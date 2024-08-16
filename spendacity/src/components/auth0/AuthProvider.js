@@ -11,7 +11,7 @@ export default function AuthProvider({ children }) {
     <Auth0Provider
       domain={domain}
       clientId={clientId}
-      redirectUri={redirectUri}
+      authorizationParams={{ redirect_uri: redirectUri }}
     >
       {children}
     </Auth0Provider>

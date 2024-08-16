@@ -1,52 +1,88 @@
 import { useState } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function AddExpenseForm({
   categories,
   paymentTypes,
   onAddExpense,
-  onAddPaymentType, // New prop to handle adding a payment type
+  onAddPaymentType,
+  onAddCategory,
+  isAddingExpense,
 }) {
+  const { getAccessTokenSilently, user } = useAuth0();
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
+  const [newCategory, setNewCategory] = useState("");
   const [amount, setAmount] = useState("");
   const [satisfaction, setSatisfaction] = useState(3);
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [paymentType, setPaymentType] = useState("");
-  const [customPaymentType, setCustomPaymentType] = useState(""); // New state for custom payment type
+  const [customPaymentType, setCustomPaymentType] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isAddingExpense) return;
 
-    // Add custom payment type if provided
     if (customPaymentType) {
       onAddPaymentType(customPaymentType);
       setPaymentType(customPaymentType);
     }
 
-    onAddExpense({
-      id: Date.now(),
+    const finalCategory = category || newCategory;
+    if (newCategory && !categories.includes(newCategory)) {
+      onAddCategory(newCategory);
+    }
+
+    const newExpense = {
+      userId: user.sub,
       title,
-      category,
+      category: finalCategory,
       amount: parseFloat(amount),
       date,
       satisfaction,
       paymentType: customPaymentType || paymentType,
-    });
+    };
 
-    // Reset form fields
-    setTitle("");
-    setCategory("");
-    setAmount("");
-    setSatisfaction(3);
-    setDate(new Date().toISOString().split("T")[0]);
-    setPaymentType("");
-    setCustomPaymentType("");
+    try {
+      const token = await getAccessTokenSilently();
+      const response = await fetch("/api/expenses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newExpense),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save expense: ${response.statusText}`);
+      }
+
+      const savedExpense = await response.json();
+      onAddExpense(savedExpense);
+
+      // Reset form fields
+      setTitle("");
+      setCategory("");
+      setNewCategory("");
+      setAmount("");
+      setSatisfaction(3);
+      setDate(new Date().toISOString().split("T")[0]);
+      setPaymentType("");
+      setCustomPaymentType("");
+
+      // Reload the page to display the new expense
+      window.location.reload();
+    } catch (error) {
+      console.error("Error adding expense:", error.message);
+      // Optionally, display an error message to the user
+    }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white rounded-lg shadow-md p-6 transform transition-transform hover:scale-105 "
+      className="bg-white rounded-lg shadow-md p-6 transform transition-transform hover:scale-105"
     >
       <h2 className="text-2xl font-semibold text-olive-800 mb-4">
         Add New Expense
@@ -59,12 +95,13 @@ export default function AddExpenseForm({
           placeholder="Title"
           className="p-2 border border-olive-300 rounded"
           required
+          disabled={isAddingExpense}
         />
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           className="p-2 border border-olive-300 rounded"
-          required
+          disabled={isAddingExpense}
         >
           <option value="">Select Category</option>
           {categories.map((cat) => (
@@ -74,12 +111,21 @@ export default function AddExpenseForm({
           ))}
         </select>
         <input
+          type="text"
+          value={newCategory}
+          onChange={(e) => setNewCategory(e.target.value)}
+          placeholder="Or enter a new category"
+          className="p-2 border border-olive-300 rounded"
+          disabled={isAddingExpense}
+        />
+        <input
           type="number"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="Amount"
           className="p-2 border border-olive-300 rounded"
           required
+          disabled={isAddingExpense}
         />
         <input
           type="date"
@@ -87,12 +133,14 @@ export default function AddExpenseForm({
           onChange={(e) => setDate(e.target.value)}
           className="p-2 border border-olive-300 rounded"
           required
+          disabled={isAddingExpense}
         />
         <select
           value={paymentType}
           onChange={(e) => setPaymentType(e.target.value)}
           className="p-2 border border-olive-300 rounded"
           required
+          disabled={isAddingExpense}
         >
           <option value="">Select Payment Type</option>
           {paymentTypes.map((type) => (
@@ -107,6 +155,7 @@ export default function AddExpenseForm({
           onChange={(e) => setCustomPaymentType(e.target.value)}
           placeholder="Or enter a new payment type"
           className="p-2 border border-olive-300 rounded"
+          disabled={isAddingExpense}
         />
         <div className="flex items-center">
           <label className="mr-2">Satisfaction:</label>
@@ -117,14 +166,18 @@ export default function AddExpenseForm({
             value={satisfaction}
             onChange={(e) => setSatisfaction(parseInt(e.target.value))}
             className="w-full"
+            disabled={isAddingExpense}
           />
           <span className="ml-2">{satisfaction}</span>
         </div>
         <button
           type="submit"
-          className="bg-olive-600 text-white py-2 px-4 rounded hover:bg-olive-700"
+          className={`text-white py-2 px-4 rounded hover:bg-olive-700 bg-pink-500 hover:bg-pink-600 transform transition-transform hover:scale-105 ${
+            isAddingExpense ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={isAddingExpense}
         >
-          Add Expense
+          {isAddingExpense ? "Adding..." : "Add Expense"}
         </button>
       </div>
     </form>

@@ -4,27 +4,35 @@ import {
   startOfMonth,
   endOfMonth,
   eachDayOfInterval,
-  getDay,
+  parseISO,
 } from "date-fns";
 
 export default function TimeBasedInsights({ expenses }) {
   const today = new Date();
   const start = startOfMonth(today);
   const end = endOfMonth(today);
-
+  const monthName = format(today, "MMMM yyyy");
+  const todayFormatted = format(today, "yyyy-MM-dd");
   const daysInMonth = eachDayOfInterval({ start, end });
 
   const spendingByDay = daysInMonth.map((day) => {
+    const dayFormatted = format(day, "yyyy-MM-dd");
     const total = expenses
-      .filter(
-        (e) =>
-          format(new Date(e.date), "yyyy-MM-dd") === format(day, "yyyy-MM-dd"),
-      )
-      .reduce((sum, e) => sum + e.amount, 0);
+      .filter((e) => {
+        try {
+          // Try to parse the date, return false if invalid
+          const expenseDate =
+            e.date instanceof Date ? e.date : parseISO(e.date);
+          return format(expenseDate, "yyyy-MM-dd") === dayFormatted;
+        } catch (error) {
+          console.error(`Invalid date for expense:`, e);
+          return false;
+        }
+      })
+      .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
 
-    let backgroundColor = `hsl(${Math.max(0, 120 - (120 * total) / 50)}, 100%, 50%)`; // Green to Red gradient
-
-    if (total === 0) backgroundColor = "#f7fafc"; // Tailwind's gray-100 equivalent
+    let backgroundColor = `hsl(${Math.max(0, 120 - (120 * total) / 50)}, 100%, 50%)`;
+    if (total === 0) backgroundColor = "#f7fafc";
 
     return {
       day,
@@ -38,7 +46,7 @@ export default function TimeBasedInsights({ expenses }) {
   return (
     <div className="bg-white rounded-lg shadow-md transform transition-transform hover:scale-105 p-6 border">
       <h2 className="text-2xl font-semibold text-purple-700 mb-4">
-        Spending Calendar
+        Spending Calendar - {monthName}
       </h2>
       <div className="grid grid-cols-7 gap-2">
         {dayLabels.map((label) => (
