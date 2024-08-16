@@ -31,7 +31,8 @@ export default function TimeBasedInsights({ expenses }) {
       })
       .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
 
-    let backgroundColor = `hsl(${Math.max(0, 120 - (120 * total) / 50)}, 100%, 50%)`;
+    // Adjust the HSL values for a pastel effect
+    let backgroundColor = `hsl(${Math.max(0, 120 - (120 * total) / 50)}, 70%, 85%)`;
     if (total === 0) backgroundColor = "#f7fafc";
 
     return {

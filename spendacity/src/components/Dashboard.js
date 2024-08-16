@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import DashboardHeader from "./DashboardHeader";
 import DashboardCard from "./DashboardCard";
@@ -9,6 +9,7 @@ import TimeBasedInsights from "./TimeBasedInsights";
 import ExpenseList from "./ExpenseList";
 import AddExpenseForm from "./AddExpenseForm";
 import AnimatedBackground from "./AnimatedBackground";
+import { useExpenses } from "./useExpenses";
 
 export default function Dashboard() {
   const {
@@ -19,9 +20,15 @@ export default function Dashboard() {
     user,
   } = useAuth0();
 
-  const [expenses, setExpenses] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAddingExpense, setIsAddingExpense] = useState(false);
+  const {
+    expenses,
+    isLoading,
+    isAddingExpense,
+    fetchExpenses,
+    handleAddExpense,
+    handleDeleteExpense,
+  } = useExpenses(user);
+
   const [categories, setCategories] = useState([
     "Self-Care",
     "Experiences",
@@ -43,29 +50,6 @@ export default function Dashboard() {
     Drinks: 50,
   });
 
-  const fetchExpenses = useCallback(async () => {
-    if (!user) return;
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/expenses", {
-        headers: {
-          "user-id": user.sub,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch expenses");
-      }
-
-      const data = await response.json();
-      setExpenses(data);
-    } catch (error) {
-      console.error("Error fetching expenses:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user]);
-
   useEffect(() => {
     if (!authLoading) {
       if (isAuthenticated && user) {
@@ -82,57 +66,6 @@ export default function Dashboard() {
       ? expenses.reduce((sum, expense) => sum + expense.satisfaction, 0) /
         expenses.length
       : 0;
-
-  const handleDeleteExpense = async (id) => {
-    if (!user) return;
-    try {
-      const response = await fetch(`/api/expenses/${id}`, {
-        method: "DELETE",
-        headers: {
-          "user-id": user.sub,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete expense");
-      }
-
-      setExpenses(expenses.filter((expense) => expense._id !== id));
-    } catch (error) {
-      console.error("Error deleting expense:", error);
-    }
-  };
-
-  const handleAddExpense = async (newExpense) => {
-    if (!user || isAddingExpense) return;
-
-    setIsAddingExpense(true);
-    try {
-      const response = await fetch("/api/expenses", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "user-id": user.sub,
-        },
-        body: JSON.stringify(newExpense),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`,
-        );
-      }
-
-      const savedExpense = await response.json();
-      setExpenses([...expenses, savedExpense]);
-    } catch (error) {
-      console.error("Error in handleAddExpense:", error.message);
-      // Show error message to user
-    } finally {
-      setIsAddingExpense(false);
-    }
-  };
 
   const handleAddCategory = (newCategory) => {
     if (!categories.includes(newCategory)) {

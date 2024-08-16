@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaTrash, FaPencilAlt } from "react-icons/fa";
+import { FaTrashAlt, FaPencilAlt } from "react-icons/fa";
 
 export default function SpendingByCategory({
   expenses,
@@ -110,15 +110,15 @@ export default function SpendingByCategory({
             <div className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
                 onClick={() => setEditingCategory(category)}
-                className="text-blue-500 mr-2"
+                className="text-gray-400 mr-2"
               >
                 <FaPencilAlt />
               </button>
               <button
                 onClick={() => handleDeleteCategory(category)}
-                className="text-red-500"
+                className="text-gray-400"
               >
-                <FaTrash />
+                <FaTrashAlt />
               </button>
             </div>
           </div>
