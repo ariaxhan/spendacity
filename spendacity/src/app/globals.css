@@ -26,7 +26,7 @@ body {
             rgb(var(--background-end-rgb))
         )
         rgb(var(--background-start-rgb));
-    font-family: "Kanit", "Varela Round", sans-serif; /* Apply Kanit and Varela Round fonts */
+    font-family: "Inter", "Varela Round", sans-serif; /* Apply Kanit and Varela Round fonts */
 }
 
 @layer utilities {

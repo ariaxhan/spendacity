@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 import DashboardHeader from "./DashboardHeader";
 import DashboardCard from "./DashboardCard";
 import SpendingByCategory from "./SpendingByCategory";
@@ -10,48 +11,17 @@ import AddExpenseForm from "./AddExpenseForm";
 import AnimatedBackground from "./AnimatedBackground";
 
 export default function Dashboard() {
+  const { loginWithRedirect, logout, isAuthenticated } = useAuth0();
+
   const [expenses, setExpenses] = useState([
-    {
-      id: 1,
-      title: "Spa Day",
-      category: "Self-Care",
-      amount: 50,
-      date: "2024-03-15",
-      satisfaction: 4,
-      paymentType: "Credit Card - Chase Sapphire",
-    },
-    {
-      id: 2,
-      title: "Concert",
-      category: "Experiences",
-      amount: 120,
-      date: "2024-03-16",
-      satisfaction: 5,
-      paymentType: "Venmo",
-    },
-    {
-      id: 3,
-      title: "Groceries",
-      category: "Necessities",
-      amount: 80,
-      date: "2024-03-17",
-      satisfaction: 3,
-      paymentType: "Cash",
-    },
+    // Your expense data...
   ]);
 
   const categories = [
-    "Self-Care",
-    "Experiences",
-    "Necessities",
-    "Dining",
-    "Transportation",
-    "Shopping",
-    "Drinks",
+    // Your categories...
   ];
 
   const paymentTypes = ["Card", "Cash", "Venmo", "Zelle"];
-
   const initialBudgets = {
     "Self-Care": 100,
     Experiences: 200,
@@ -81,6 +51,25 @@ export default function Dashboard() {
 
       <div className="container mx-auto px-4 py-8">
         <DashboardHeader />
+
+        {/* Auth Buttons */}
+        <div className="flex justify-end space-x-4 mb-8">
+          {!isAuthenticated ? (
+            <button
+              onClick={() => loginWithRedirect()}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700"
+            >
+              Log In
+            </button>
+          ) : (
+            <button
+              onClick={() => logout({ returnTo: window.location.origin })}
+              className="px-4 py-2 bg-red-600 text-white rounded-md shadow hover:bg-red-700"
+            >
+              Log Out
+            </button>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <TimeBasedInsights expenses={expenses} />
