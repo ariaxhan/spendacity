@@ -26,11 +26,36 @@ body {
             rgb(var(--background-end-rgb))
         )
         rgb(var(--background-start-rgb));
-    font-family: "Inter", "Varela Round", sans-serif; /* Apply Kanit and Varela Round fonts */
+    font-family: "Kanit", "Varela Round", sans-serif; /* Apply Kanit and Varela Round fonts */
 }
 
 @layer utilities {
     .text-balance {
         text-wrap: balance;
     }
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background-color: #ec4899; /* Pink 600 */
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background-color: #ec4899; /* Pink 600 */
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+input[type="range"]::-ms-thumb {
+    width: 16px;
+    height: 16px;
+    background-color: #ec4899; /* Pink 600 */
+    border-radius: 50%;
+    cursor: pointer;
 }

@@ -10,6 +10,7 @@ import ExpenseList from "./ExpenseList";
 import AddExpenseForm from "./AddExpenseForm";
 import AnimatedBackground from "./AnimatedBackground";
 import { useExpenses } from "./useExpenses";
+import "../app/globals.css";
 
 export default function Dashboard() {
   const {
@@ -93,20 +94,6 @@ export default function Dashboard() {
       <div className="container mx-auto px-4 py-8">
         <DashboardHeader />
 
-        {isAuthenticated && user && (
-          <div className="flex justify-between items-center mb-8">
-            <div className="text-gray-600">
-              <p>User ID: {user.sub}</p>
-            </div>
-            <button
-              onClick={() => logout({ returnTo: window.location.origin })}
-              className="px-4 py-2 bg-red-600 text-white rounded-md shadow hover:bg-red-700"
-            >
-              Log Out
-            </button>
-          </div>
-        )}
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <TimeBasedInsights expenses={expenses} />
           <div className="grid grid-cols-1 gap-6">
@@ -154,6 +141,17 @@ export default function Dashboard() {
             onUpdateBudgets={handleUpdateBudgets}
           />
         </div>
+
+        {isAuthenticated && user && (
+          <div className="flex justify-center items-center mb-8">
+            <button
+              onClick={() => logout({ returnTo: window.location.origin })}
+              className="px-4 py-2 bg-red-600 text-white rounded-md shadow hover:bg-red-700"
+            >
+              Log Out
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 3D Background Animation */}

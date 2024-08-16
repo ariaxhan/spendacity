@@ -84,7 +84,7 @@ export default function AddExpenseForm({
       onSubmit={handleSubmit}
       className="bg-white rounded-lg shadow-md p-6 transform transition-transform hover:scale-105"
     >
-      <h2 className="text-2xl font-semibold text-olive-800 mb-4">
+      <h2 className="text-xl sm:text-2xl font-semibold text-pink-700 mb-4">
         Add New Expense
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -165,7 +165,7 @@ export default function AddExpenseForm({
             max="10"
             value={satisfaction}
             onChange={(e) => setSatisfaction(parseInt(e.target.value))}
-            className="w-full"
+            className="w-full bg-pink-600"
             disabled={isAddingExpense}
           />
           <span className="ml-2">{satisfaction}</span>

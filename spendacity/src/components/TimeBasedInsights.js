@@ -46,7 +46,7 @@ export default function TimeBasedInsights({ expenses }) {
 
   return (
     <div className="bg-white rounded-lg shadow-md transform transition-transform hover:scale-105 p-6 border">
-      <h2 className="text-2xl font-semibold text-purple-700 mb-4">
+      <h2 className="text-xl sm:text-2xl font-semibold text-pink-700 mb-4">
         Spending Calendar - {monthName}
       </h2>
       <div className="grid grid-cols-7 gap-2">

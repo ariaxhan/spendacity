@@ -1,7 +1,7 @@
 export default function ExpenseList({ expenses, onDeleteExpense }) {
   return (
     <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 transform transition-transform hover:scale-105 mb-8 border border-solid border-gray-300 overflow-x-auto">
-      <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 sm:mb-6">
+      <h2 className="text-xl sm:text-2xl font-semibold text-pink-700 mb-4">
         Recent Expenses
       </h2>
       <div className="overflow-x-auto">
@@ -72,7 +72,7 @@ export default function ExpenseList({ expenses, onDeleteExpense }) {
                     <span className="mr-2">{expense.satisfaction}</span>
                     <div className="w-20 bg-gray-200 rounded-full h-2.5">
                       <div
-                        className="bg-blue-600 h-2.5 rounded-full"
+                        className="bg-pink-600 h-2.5 rounded-full"
                         style={{
                           width: `${(expense.satisfaction / 10) * 100}%`,
                         }}
