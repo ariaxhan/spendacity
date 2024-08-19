@@ -1,3 +1,5 @@
+// src/app/api/expenses/[id]/route.js
+
 import { NextResponse } from "next/server";
 import connectToDatabase from "../../../../lib/mongodb";
 import Expense from "../../../../lib/models/Expense";

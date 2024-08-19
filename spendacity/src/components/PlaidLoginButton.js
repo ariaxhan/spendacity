@@ -4,11 +4,11 @@ import { usePlaidLink } from "react-plaid-link";
 const PlaidLoginButton = ({ user }) => {
   const [linkToken, setLinkToken] = useState(null);
   const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(false); // Add a loading state
+  const [loading, setLoading] = useState(false);
 
   const fetchLinkToken = useCallback(async () => {
     try {
-      setLoading(true); // Start loading
+      setLoading(true);
       const response = await fetch("/api/plaid/linkToken", {
         method: "POST",
         headers: {
@@ -23,19 +23,61 @@ const PlaidLoginButton = ({ user }) => {
 
       const data = await response.json();
       setLinkToken(data.link_token);
-      console.log("Link token fetched:", data.link_token); // Log the link token
-      setLoading(false); // Stop loading
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching link token:", error);
-      setLoading(false); // Stop loading in case of error
+      setLoading(false);
     }
   }, [user]);
 
   useEffect(() => {
-    if (user && user.sub) {
+    if (user && user.sub && !linkToken) {
       fetchLinkToken();
     }
-  }, [user, fetchLinkToken]);
+  }, [user, linkToken, fetchLinkToken]);
+
+  const convertPlaidToExpense = async (plaidTransaction) => {
+    try {
+      const response = await fetch("/api/convert", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ plaidTransaction, userId: user.sub }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to convert Plaid transaction");
+      }
+
+      const expense = await response.json();
+      console.log("Converted Plaid transaction:", expense);
+      return expense;
+    } catch (error) {
+      console.error("Error converting Plaid transaction:", error);
+      throw error;
+    }
+  };
+
+  const saveExpenseToDatabase = async (expense) => {
+    try {
+      const response = await fetch("/api/expenses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(expense),
+      });
+
+      console.log("Saved expense to database:", expense);
+      if (!response.ok) {
+        throw new Error("Failed to save expense to the database");
+      }
+    } catch (error) {
+      console.error("Error saving expense to the database:", error);
+      throw error;
+    }
+  };
 
   const { open, ready } = usePlaidLink({
     token: linkToken,
@@ -55,7 +97,6 @@ const PlaidLoginButton = ({ user }) => {
 
         const data = await response.json();
         const accessToken = data.access_token;
-        console.log("Access token:", accessToken);
 
         // Fetch transactions after obtaining the access token
         const transactionsResponse = await fetch("/api/transactions", {
@@ -69,11 +110,18 @@ const PlaidLoginButton = ({ user }) => {
         }
 
         const transactionsData = await transactionsResponse.json();
-        setTransactions(transactionsData);
-        console.log("Transactions:", transactionsData);
 
-        // Refresh link token so the user can add more accounts
-        fetchLinkToken();
+        // Convert each Plaid transaction and save it to the database
+        const convertedTransactions = await Promise.all(
+          transactionsData.map(async (transaction) => {
+            const expense = await convertPlaidToExpense(transaction);
+            await saveExpenseToDatabase(expense);
+            return expense;
+          }),
+        );
+
+        setTransactions(convertedTransactions);
+        // fetchLinkToken(); // Refresh link token so the user can add more accounts
       } catch (error) {
         console.error("Error handling Plaid success:", error);
       }
@@ -92,12 +140,12 @@ const PlaidLoginButton = ({ user }) => {
       <button
         onClick={() => {
           if (linkToken) {
-            open(); // This will open the Plaid Link login page
+            open();
           } else {
             console.log("Link token is not ready yet.");
           }
         }}
-        disabled={loading || !ready || !linkToken} // Disable if loading or not ready
+        disabled={loading || !ready || !linkToken}
         style={{
           backgroundColor: "#1a73e8",
           color: "#ffffff",
@@ -108,16 +156,16 @@ const PlaidLoginButton = ({ user }) => {
           fontSize: "16px",
         }}
       >
-        {loading ? "Loading..." : "Connect Your Bank"} {/* Show loading text */}
+        {loading ? "Loading..." : "Connect Your Bank"}
       </button>
-      {/* Display transactions or other data */}
       {transactions.length > 0 && (
         <div style={{ marginTop: "20px" }}>
           <h3>Your Transactions:</h3>
           <ul>
             {transactions.map((transaction, index) => (
               <li key={index}>
-                {transaction.name}: ${transaction.amount} on {transaction.date}
+                {transaction.title}: ${transaction.amount} on{" "}
+                {new Date(transaction.date).toLocaleDateString()}
               </li>
             ))}
           </ul>
