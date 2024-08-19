@@ -12,8 +12,8 @@ At its core, Spendacity is designed to simplify financial management while offer
 - **Data Management**: Employs MongoDB for efficient and scalable data storage.
 
 ## Technology Stack
-Frontend: Next.js, React
-Backend: Node.js
-Database: MongoDB
-Authentication: Auth0
-Financial Data Integration: Plaid
+- Frontend: Next.js, React
+- Backend: Node.js
+- Database: MongoDB
+- Authentication: Auth0
+- Financial Data Integration: Plaid
