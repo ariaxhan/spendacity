@@ -9,6 +9,7 @@ import TimeBasedInsights from "./TimeBasedInsights";
 import ExpenseList from "./ExpenseList";
 import AddExpenseForm from "./AddExpenseForm";
 import AnimatedBackground from "./AnimatedBackground";
+import PlaidLoginButton from "./PlaidLoginButton";
 import { useExpenses } from "./useExpenses";
 import "../app/globals.css";
 
@@ -93,6 +94,9 @@ export default function Dashboard() {
 
       <div className="container mx-auto px-4 py-8">
         <DashboardHeader />
+        <div>
+          <PlaidLoginButton user={user} />
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <TimeBasedInsights expenses={expenses} />
