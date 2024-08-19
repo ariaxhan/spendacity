@@ -58,7 +58,7 @@ const PlaidLoginButton = ({ user }) => {
         console.log("Access token:", accessToken);
 
         // Fetch transactions after obtaining the access token
-        const transactionsResponse = await fetch("/api/expenses", {
+        const transactionsResponse = await fetch("/api/transactions", {
           headers: {
             "user-id": user.sub,
           },
@@ -117,7 +117,7 @@ const PlaidLoginButton = ({ user }) => {
           <ul>
             {transactions.map((transaction, index) => (
               <li key={index}>
-                {transaction.title}: ${transaction.amount} on {transaction.date}
+                {transaction.name}: ${transaction.amount} on {transaction.date}
               </li>
             ))}
           </ul>

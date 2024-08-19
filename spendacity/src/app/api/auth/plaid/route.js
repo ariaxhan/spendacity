@@ -14,18 +14,32 @@ export async function POST(req) {
       );
     }
 
-    const response = await client.exchangePublicToken(public_token);
-    const { access_token } = response;
+    const response = await client.itemPublicTokenExchange({
+      public_token: public_token,
+    });
 
-    // Store the access token securely associated with user.sub
-    await storePlaidAccessToken(user.sub, access_token);
+    const accessToken = response.data.access_token;
+    const itemId = response.data.item_id;
 
-    return NextResponse.json({ access_token });
+    // Store the access token and item ID securely associated with user.sub
+    await storePlaidAccessToken(user.sub, accessToken, itemId);
+
+    return NextResponse.json({
+      access_token: accessToken,
+      item_id: itemId,
+    });
   } catch (error) {
-    console.error("Error exchanging public token:", error.message);
+    console.error("Error exchanging public token:", error);
     return NextResponse.json(
-      { error: "Internal Server Error", details: error.message },
-      { status: 500 },
+      {
+        error: {
+          error_type: error.error_type,
+          error_code: error.error_code,
+          error_message: error.error_message,
+          display_message: error.display_message,
+        },
+      },
+      { status: error.status_code || 500 },
     );
   }
 }
