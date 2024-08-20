@@ -4,7 +4,11 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY, // Make sure to set this environment variable
 });
 
-export async function convertPlaidToExpense(plaidTransaction, userId) {
+export async function convertPlaidToExpense(
+  plaidTransaction,
+  userId,
+  categories,
+) {
   const prompt = `
 You are a financial data analyst AI assistant. Your task is to analyze the given Plaid transaction data and convert it into an Expense object that matches our MongoDB document structure. The object must include the following fields exactly as named:
 
@@ -26,7 +30,7 @@ Convert this data into the JSON format shown above, following these guidelines:
 
 1. userId: Use the provided userId.
 2. title: Use the 'merchant_name' or 'name' field from the Plaid data.
-3. category: Assign a category based on the Plaid 'category' array or 'personal_finance_category'.
+3. category: Assign a category based on the Plaid 'category' array or 'personal_finance_category'. It should match exactly one of the categories provided in the ${categories} array. Find the most appropriate one.
 4. amount: Use the 'amount' field from the Plaid data as a number.
 5. date: Convert the 'date' field from the Plaid data into a valid Date string format.
 6. paymentType: Determine based on the 'payment_channel' field.

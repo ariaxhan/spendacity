@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { usePlaidLink } from "react-plaid-link";
 
-const PlaidLoginButton = ({ user }) => {
+const PlaidLoginButton = ({ user, categories }) => {
   const [linkToken, setLinkToken] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -43,7 +43,11 @@ const PlaidLoginButton = ({ user }) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ plaidTransaction, userId: user.sub }),
+        body: JSON.stringify({
+          plaidTransaction,
+          userId: user.sub,
+          categories, // Passing categories here
+        }),
       });
 
       if (!response.ok) {
@@ -114,7 +118,10 @@ const PlaidLoginButton = ({ user }) => {
         // Convert each Plaid transaction and save it to the database
         const convertedTransactions = await Promise.all(
           transactionsData.map(async (transaction) => {
-            const expense = await convertPlaidToExpense(transaction);
+            const expense = await convertPlaidToExpense(
+              transaction,
+              categories,
+            );
             await saveExpenseToDatabase(expense);
             return expense;
           }),

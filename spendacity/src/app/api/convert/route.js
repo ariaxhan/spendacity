@@ -8,19 +8,26 @@ export async function POST(req) {
     console.log("POST /api/convert called");
 
     // Parse the request body
-    const { plaidTransaction, userId } = await req.json();
+    const { plaidTransaction, userId, categories } = await req.json();
     console.log("Received Plaid transaction:", plaidTransaction);
     console.log("Received User ID:", userId);
+    console.log("Received categories:", categories);
 
-    if (!plaidTransaction || !userId) {
+    if (!plaidTransaction || !userId || !categories) {
       return NextResponse.json(
-        { error: "Plaid transaction data or User ID not provided" },
+        {
+          error: "Plaid transaction data, User ID, or categories not provided",
+        },
         { status: 400 },
       );
     }
 
     // Convert Plaid transaction to expense format
-    const expense = await convertPlaidToExpense(plaidTransaction, userId);
+    const expense = await convertPlaidToExpense(
+      plaidTransaction,
+      userId,
+      categories,
+    );
 
     // Return the converted expense
     return NextResponse.json(expense);
